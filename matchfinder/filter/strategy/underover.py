@@ -1,5 +1,6 @@
 import logging
 from functools import reduce
+
 from matchfinder.filter.domain.competition import Competition
 from matchfinder.footballapi import footballapi
 

@@ -1,7 +1,8 @@
 import logging
+from math import ceil
+
 from matchfinder.filter.domain.competition import Competition
 from matchfinder.footballapi import footballapi
-from math import ceil
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

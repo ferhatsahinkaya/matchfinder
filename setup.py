@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='matchfinder',
-    version='1.1',
+    version='1.0',
     description='Match Finder',
     author='Ferhat Sahinkaya',
     author_email='ferhatsahinkaya@gmail.com',

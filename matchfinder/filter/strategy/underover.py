@@ -27,7 +27,7 @@ def has_probability(team_stats, expected_chance):
 def get_matches(competition, search_filter):
     matches = footballapi.get_next_week_matches(competition['id'])
     filter['halftime'] = search_filter['halffulltime'] == 'halftime'
-    filter['homeaway'] = search_filter['homeaway']
+    filter['homeaway'] = search_filter['homeaway'] == 'on'
     filter['numberofgoals'] = search_filter['numberofgoals']
     filter['chance'] = search_filter['percent']
     filter['competitionId'] = competition['id']

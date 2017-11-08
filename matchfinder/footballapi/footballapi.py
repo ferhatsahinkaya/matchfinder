@@ -47,7 +47,7 @@ def get_league_table(competition_id):
 
 def get_next_week_matches(competition_id):
     fixtures = get_competition_fixtures(competition_id)
-    future_matches = [match for match in fixtures if match['status'] not in ['FINISHED', 'CANCELED']]
+    future_matches = [match for match in fixtures if match['status'] not in ['FINISHED', 'CANCELED', 'POSTPONED']]
 
     current_week = future_matches[0]['matchday'] if future_matches else None
 
@@ -82,21 +82,29 @@ def get_team_fixtures(team_id):
 
 
 def get_or_wait(url):
+    json_response = None
+    retry_count = 3
     do_request = True
-    while do_request:
+
+    while do_request and retry_count > 0:
         response = requests.get(url, headers=headers)
         json_response = json.loads(response.content.decode('utf-8'))
 
         do_request = False
         if 'error' in json_response:
-            logger.debug(json_response)
+            logger.info(json_response)
 
             sleep_time_in_sec_group = re.search('You reached your request limit. Wait (.+)? seconds.',
                                                 json_response['error'])
             if sleep_time_in_sec_group:
-                sleep_time_in_sec = int(sleep_time_in_sec_group.group(1)) if sleep_time_in_sec_group else 0
-                logger.debug('Reached request limit. Sleeping for {} seconds'.format(sleep_time_in_sec))
+                sleep_time_in_sec = int(sleep_time_in_sec_group.group(1)) + 1 if sleep_time_in_sec_group else 1
+                logger.info('Reached request limit. Sleeping for {} seconds'.format(sleep_time_in_sec))
                 time.sleep(sleep_time_in_sec)
+                do_request = True
+
+            elif retry_count:
+                retry_count -= 1
+                logger.info('Remaining retry_count for last call is {}'.format(retry_count))
                 do_request = True
 
     return json_response

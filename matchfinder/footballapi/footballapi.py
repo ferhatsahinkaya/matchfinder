@@ -68,6 +68,16 @@ def get_competition_fixtures(competition_id):
 
     return fixtures
 
+def get_team(team_id):
+    try:
+        team = get_or_wait('http://api.football-data.org/v1/teams/{}'.format(team_id))
+        logging.debug('team: ' + json.dumps(team))
+    except:
+        logger.error('get_team for team {} failed'.format(team_id))
+        raise
+
+    return team
+
 
 def get_team_fixtures(team_id):
     try:

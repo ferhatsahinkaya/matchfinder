@@ -43,10 +43,19 @@ def get_matches(competition, search_filter):
         } for match in matches]
 
     return Competition(competition['caption'],
-                       [Match(match_and_stats['match']['date'], match_and_stats['match']['homeTeamName'],
-                              match_and_stats['match']['awayTeamName'], match_and_stats['stats'])
+                       [Match(match_and_stats['match']['date'],
+                              Team(match_and_stats['match']['homeTeamName'],
+                                   get_team_crest_url(match_and_stats['match']['homeTeamId'])),
+                              Team(match_and_stats['match']['awayTeamName'],
+                                   get_team_crest_url(match_and_stats['match']['awayTeamId'])),
+                              match_and_stats['stats'])
                         for match_and_stats in selected_match_and_stats
                         if has_probability(match_and_stats['stats'], filter['chance'])])
+
+
+def get_team_crest_url(team_id):
+    team = footballapi.get_team(team_id)
+    return team['crestUrl'] if 'crestUrl' in team else None
 
 
 def get_goal_count(match):
@@ -88,8 +97,27 @@ class Match:
 
     def __str__(self):
         return '{} {} - {} (under_or_equal_chance:{}%, over_or_equal_chance: {}%)' \
-            .format(self.datetime, self.homeTeam, self.awayTeam, self.stats['under_or_equal_chance'],
+            .format(self.datetime, str(self.homeTeam), str(self.awayTeam), self.stats['under_or_equal_chance'],
                     self.stats['over_or_equal_chance'])
+
+    def __iter__(self):
+        return iter([('datetime', self.datetime),
+                     ('homeTeam', dict(self.homeTeam)),
+                     ('awayTeam', dict(self.awayTeam)),
+                     ('stats', self.stats)])
+
+
+class Team:
+    def __init__(self, name, crest_url):
+        self.name = name
+        self.crestUrl = crest_url
+
+    def __str__(self):
+        return '{}(crestUrl: {})'.format(self.name, self.crestUrl)
+
+    def __iter__(self):
+        return iter([('name', self.name),
+                     ('crestUrl', self.crestUrl)])
 
 
 class Results:

@@ -37,19 +37,44 @@ def get_matches(competition, filter):
                                                    number_of_teams - group_size + 1))]
 
     return Competition(competition['caption'],
-                       [Match(match['date'], match['homeTeamName'], standing[match['homeTeamId']],
-                              match['awayTeamName'], standing[match['awayTeamId']])
+                       [Match(match['date'],
+                              Team(match['homeTeamName'], standing[match['homeTeamId']],
+                                   get_team_crest_url(match['homeTeamId'])),
+                              Team(match['awayTeamName'], standing[match['awayTeamId']],
+                                   get_team_crest_url(match['awayTeamId'])))
                         for match in selected_matches])
 
 
+def get_team_crest_url(team_id):
+    team = footballapi.get_team(team_id)
+    return team['crestUrl'] if 'crestUrl' in team else None
+
+
 class Match:
-    def __init__(self, datetime, home_team, home_team_standing, away_team, away_team_standing):
+    def __init__(self, datetime, home_team, away_team):
         self.datetime = datetime
         self.homeTeam = home_team
-        self.homeTeamStanding = home_team_standing
         self.awayTeam = away_team
-        self.awayTeamStanding = away_team_standing
 
     def __str__(self):
-        return '{} {}({}) - {}({})'.format(self.datetime, self.homeTeam, self.homeTeamStanding, self.awayTeam,
-                                           self.awayTeamStanding)
+        return '{} {} - {}'.format(self.datetime, str(self.homeTeam), str(self.awayTeam))
+
+    def __iter__(self):
+        return iter([('datetime', self.datetime),
+                     ('homeTeam', dict(self.homeTeam)),
+                     ('awayTeam', dict(self.awayTeam))])
+
+
+class Team:
+    def __init__(self, name, standing, crest_url):
+        self.name = name
+        self.standing = standing
+        self.crestUrl = crest_url
+
+    def __str__(self):
+        return '{}(standing: {}, crestUrl: {})'.format(self.name, self.standing, self.crestUrl)
+
+    def __iter__(self):
+        return iter([('name', self.name),
+                     ('standing', self.standing),
+                     ('crestUrl', self.crestUrl)])

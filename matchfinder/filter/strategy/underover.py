@@ -30,6 +30,7 @@ def get_matches(competition, search_filter):
     filter['homeaway'] = search_filter['homeaway'] == 'on'
     filter['numberofgoals'] = search_filter['numberofgoals']
     filter['chance'] = search_filter['percent']
+    filter['teamcrest'] = search_filter['teamcrest'] == 'on'
     filter['competitionId'] = competition['id']
 
     selected_match_and_stats = [
@@ -45,9 +46,11 @@ def get_matches(competition, search_filter):
     return Competition(competition['caption'],
                        [Match(match_and_stats['match']['date'],
                               Team(match_and_stats['match']['homeTeamName'],
-                                   get_team_crest_url(match_and_stats['match']['homeTeamId'])),
+                                   get_team_crest_url(match_and_stats['match']['homeTeamId']) if filter[
+                                       'teamcrest'] else None),
                               Team(match_and_stats['match']['awayTeamName'],
-                                   get_team_crest_url(match_and_stats['match']['awayTeamId'])),
+                                   get_team_crest_url(match_and_stats['match']['awayTeamId']) if filter[
+                                       'teamcrest'] else None),
                               match_and_stats['stats'])
                         for match_and_stats in selected_match_and_stats
                         if has_probability(match_and_stats['stats'], filter['chance'])])

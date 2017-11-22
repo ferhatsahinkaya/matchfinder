@@ -7,7 +7,6 @@ from matchfinder.footballapi import footballapi
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
 def before_or_equal(team, standing, position):
     return standing[team] <= position
 
@@ -39,9 +38,9 @@ def get_matches(competition, filter):
     return Competition(competition['caption'],
                        [Match(match['date'],
                               Team(match['homeTeamName'], standing[match['homeTeamId']],
-                                   get_team_crest_url(match['homeTeamId'])),
+                                   get_team_crest_url(match['homeTeamId']) if filter['teamcrest'] == "on" else None),
                               Team(match['awayTeamName'], standing[match['awayTeamId']],
-                                   get_team_crest_url(match['awayTeamId'])))
+                                   get_team_crest_url(match['awayTeamId']) if filter['teamcrest'] == "on" else None))
                         for match in selected_matches])
 
 
